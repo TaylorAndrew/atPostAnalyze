@@ -1,0 +1,15 @@
+Package: atPostAnalyze
+Type: Package
+Title: Methods for Post-Modeling Analyses
+Version: 0.1.0
+Author: Andrew Taylor
+Maintainer: Andrew Taylor <taylor.andrew.r@gmail.com>
+Description: Methods for further analysis (pairwise comparison, pvalue generation, model summary) post modeling.
+License: CC0
+LazyData: TRUE
+Imports:
+RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
+
