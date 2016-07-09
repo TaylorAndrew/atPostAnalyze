@@ -13,8 +13,14 @@
 #' mtcars %>%
 #'   split(.$cyl) %>%
 #'   map(~ lm(mpg ~ wt, data = .))
+#' ## As a function call:
 #' broomCall <- function(.) {tidy(., conf.int=T)}
 #' purrroom(mapDat, broomCall)
+#' ## Using piping:
+#' mtcars %>%
+#'   split(.$cyl) %>%
+#'   map(~ lm(mpg ~ wt, data = .)) %>%
+#'   purrroom()
 
 purrroom <- function(mapData, broomCall = function(.) {tidy(.)}) {
 
@@ -27,14 +33,4 @@ tidyDat %>%
   plyr::rbind.fill() %>%
   data.frame(Split = rep(names(mapDat), each = (nrow(outDat)/length(names(mapDat)))), .)
 return(outDat)
-
 }
-# library(purrr)
-# library(broom)
-# library(dplyr)
-mapDat <-
-mtcars %>%
-  split(.$cyl) %>%
-  map(~ lm(mpg ~ wt, data = .))
-broomCall <- function(.) {tidy(., conf.int=T)}
-purrroom(mapDat, broomCall)
