@@ -31,6 +31,6 @@ mapDat %>%
 outDat <-
 tidyDat %>%
   plyr::rbind.fill() %>%
-  data.frame(Split = rep(names(mapDat), each = (nrow(outDat)/length(names(mapDat)))), .)
+  data.frame(Split = rep(names(mapDat), each = nrow(tidyDat[[1]])), .)
 return(outDat)
 }
