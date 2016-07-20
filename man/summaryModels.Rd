@@ -4,18 +4,14 @@
 \alias{summaryModels}
 \title{summaryModels}
 \usage{
-summaryModels(x, lmer = FALSE, fn = NULL, digits = 3, noprint = FALSE)
+summaryModels(x, lmer = FALSE, digits = 3)
 }
 \arguments{
 \item{x}{Model object}
 
 \item{lmer}{If TRUE, the model object will be considered as an lmer() model object}
 
-\item{fn}{Filename for the output document. If NULL, no output word document will be created}
-
 \item{digits}{Number of digits to round estimates to}
-
-\item{noprint}{If TRUE, output will not be retained as an R data.frame object.}
 }
 \value{
 R data.frame object containing model estimates and p-values

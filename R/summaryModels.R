@@ -4,9 +4,7 @@
 #'
 #' @param x Model object
 #' @param lmer If TRUE, the model object will be considered as an lmer() model object
-#' @param fn Filename for the output document. If NULL, no output word document will be created
 #' @param digits Number of digits to round estimates to
-#' @param noprint If TRUE, output will not be retained as an R data.frame object.
 #'
 #' @return R data.frame object containing model estimates and p-values
 #' @export
@@ -23,74 +21,25 @@
 #' summaryModels(logMod)
 #' summaryModels(aovMod)
 summaryModels <-
-  function(x,lmer = FALSE,fn = NULL, digits = 3, noprint = FALSE) {
-    if (!is.null(fn)) {
-      quick.print <- function(PrintType = "Table",
-                              table = FALSE,
-                              filename = "RPrintout.doc",
-                              tableintro = "Table X",
-                              row.names = FALSE,
-                              fontsize = 10,
-                              column.margins = 1,
-                              plotfunc = FALSE,
-                              plotargs = FALSE,
-                              plotwidth = 6,
-                              plotheight = 6,
-                              resolution = 300) {
-        #Get package and load
-        get.packages <- function(list) {
-          new.packages <- list[!(list %in% installed.packages()[,"Package"])]
-          old.packages <- list[(list %in% installed.packages()[,"Package"])]
-          if (length(old.packages)) {
-            #       print(paste(rbind(old.packages, "is already installed.")))
-          }
-          if (length(new.packages)) {
-            #       print(paste(rbind(new.packages, "not yet installed. Attempting to install now")))
-            install.packages(new.packages)
-          }
-          lapply(list,function(x) {
-            library(x,character.only = TRUE)
-          })
-          #     print(paste(rbind(list, "has been loaded")))
-        }
-        get.packages("rtf")
-        if (PrintType == "Table") {
-          type <- class(table)
-          tabtypes <- c("table", "data.frame", "matrix")
-          match <- type %in% tabtypes
-          if (match != 1)
-            print("Error: You have specified a non-Table-Type Object as a Table-Type Object")
-          else {
-            #Write to rtf
-            rtf <- RTF(
-              filename, width = 8.5, height = 11, font.size = 10,
-              omi = c(1, 1, 1, 1)
-            )
-            addParagraph(rtf, tableintro)
-            len <- length(table[1,])
-            columnwid <- rep(column.margins,len)
-            if (row.names == TRUE)
-              columnwid <- c(columnwid,column.margins)
-            addTable(
-              rtf, table, font.size = fontsize, row.names = row.names, NA.string = "-",
-              col.widths = columnwid
-            )
-          }
-          if (PrintType == "Plot") {
-            rtf <- RTF(
-              filename, width = 8.5, height = 11, font.size = 10,
-              omi = c(1, 1, 1, 1)
-            )
-            addParagraph(rtf, tableintro)
-            addPlot(
-              rtf,plot.fun = plotfunc,width = plotwidth,height = plotheight,res = resolution, plotargs
-            )
-          }
-          done(rtf)
-        }
-      }
-    }
+  function(x,lmer = FALSE, digits = 3) {
     if (lmer == FALSE) {
+      if(as.character(x$call[1]) == "polr") {
+        sumMod <- summary(x)
+        ctable <- coef(sumMod)
+        p <-
+          round(pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2, 3)
+        cis <- round(exp(confint.default(x)), 2)
+        l = length(cis[, 1])
+        cis <-
+          c(paste0("(", cis[, 1], ', ', cis[, 2], ")"), rep("", length(p) - length(cis[, 1])))
+        sums <- data.frame(
+          Variables = names(p),
+          OR = paste0(round(exp(ctable[, 1]), 2), " ", cis),
+          p.value = p
+        )
+        sums <- sums[c(1:l),]
+    return(sums)
+      }
       if (as.character(x$call[1]) == "coxph") {
         y <- summary(x)
         if (length(row.names(y$conf.int)) > 1) {
@@ -112,9 +61,6 @@ summaryModels <-
         sums$HR <- paste0(sums[,2], " (",sums[,3],", ",sums[,4],")")
         sums <- data.frame(sums[,c(1,6,5)])
         names(sums) <- c("Variables","HR (95% CI)","pvalue")
-        if (!is.null(fn))
-          quick.print(table = sums, filename = fn, row.names = F)
-        if (noprint == F)
           return(sums)
       }
       if (as.character(x$call[1]) %in% c("lm","glm")) {
@@ -129,10 +75,7 @@ summaryModels <-
               ),round(y$coefficients[,4],digits)
             )
           names(sums) <- c("Variables","Estimate (Std. Error)","pvalue")
-          if (!is.null(fn))
-            quick.print(table = sums, filename = fn)
-          if (noprint == F)
-            return(sums)
+         return(sums)
         }
         if (x$call$family == "binomial") {
           LogisticOR <- function(model) {
@@ -154,9 +97,8 @@ summaryModels <-
           sums <-
             data.frame(row.names(OR),OR,round(y$coefficients[,4], digits))
           names(sums) <- c("Variables","OR (95% CI)","pvalue")
-          if (!is.null(fn))
-            quick.print(table = sums, filename = fn, row.names = F)
-          if (noprint == F)
+
+
             return(sums)
         }
       }
@@ -196,7 +138,6 @@ summaryModels <-
         sums <-
           data.frame(etaES[,1],etaES[,2],round(y[[1]][["Pr(>F)"]][-length(y[[1]][["Pr(>F)"]])],digits))
         names(sums) <- c("Variables","Effect Size (95% CI)","P values")
-        if (noprint == F)
           return(sums)
       }
       if (as.character(x$call[1]) %in% c("gee")) {
@@ -208,9 +149,6 @@ summaryModels <-
             Estimate = paste0(round(coefn[,c(1)],2)," (",round(coefn[,c(4)],digits),")"),pval =
               ps
           )
-          if (!is.null(fn))
-            quick.print(table = sums, filename = fn)
-          if (noprint == F)
             return(sums)
         }
         if (as.character(x$family[1]) %in% c("binomial")) {
@@ -226,10 +164,7 @@ summaryModels <-
               round(OR,2)," (",round(lb,2),", ",round(ub,digits),")"
             ),pval = ps
           )
-          if (noprint == F)
             return(sums)
-          if (!is.null(fn))
-            quick.print(table = sums, filename = fn)
         }
       }
     }
@@ -246,9 +181,6 @@ summaryModels <-
         Estimate = paste0(round(coefs[,c(1)],2)," (",round(coefs[,c(2)],digits),")"),pval =
           coefs$p.z
       )
-      if (!is.null(fn))
-        quick.print(table = sums, filename = fn)
-      if (noprint == F)
         return(sums)
     }
   }
