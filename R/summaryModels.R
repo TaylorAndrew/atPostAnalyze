@@ -97,8 +97,6 @@ summaryModels <-
           sums <-
             data.frame(row.names(OR),OR,round(y$coefficients[,4], digits))
           names(sums) <- c("Variables","OR (95% CI)","pvalue")
-
-
             return(sums)
         }
       }
@@ -183,5 +181,4 @@ summaryModels <-
       )
         return(sums)
     }
-    return(sums)
   }
