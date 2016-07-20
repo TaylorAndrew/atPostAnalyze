@@ -38,7 +38,7 @@ summaryModels <-
           p.value = p
         )
         sums <- sums[c(1:l),]
-    return(sums)
+        return(sums)
       }
       if (as.character(x$call[1]) == "coxph") {
         y <- summary(x)
@@ -183,4 +183,5 @@ summaryModels <-
       )
         return(sums)
     }
+    return(sums)
   }
