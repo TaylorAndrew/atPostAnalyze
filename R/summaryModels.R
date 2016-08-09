@@ -38,6 +38,7 @@ summaryModels <-
           p.value = p
         )
         sums <- sums[c(1:l),]
+        names(sums) <- c('Variables', 'OR (95% CI)', 'pvalue')
         return(sums)
       }
       if (as.character(x$call[1]) == "coxph") {
