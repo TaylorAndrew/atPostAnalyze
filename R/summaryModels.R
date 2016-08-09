@@ -97,7 +97,8 @@ summaryModels <-
           sums <-
             data.frame(row.names(OR),OR,round(y$coefficients[,4], digits))
           names(sums) <- c("Variables","OR (95% CI)","pvalue")
-            return(sums)
+          print(sums)
+          return(sums)
         }
       }
       if (as.character(x$call[1]) %in% c("aov")) {
