@@ -78,7 +78,7 @@ summaryModels <-
           names(sums) <- c("Variables","Estimate (Std. Error)","pvalue")
          return(sums)
         }
-        if (x$call$family %in% c("binomial()", "binomial")) {
+        if (as.character(x$call$family) == "binomial") {
           LogisticOR <- function(model) {
             k <-
               as.data.frame(cbind(paste0(
