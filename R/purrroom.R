@@ -9,11 +9,13 @@
 #' @export
 #'
 #' @examples
+#' library(purrr)
 #' mapDat <-
 #' mtcars %>%
 #'   split(.$cyl) %>%
 #'   map(~ lm(mpg ~ wt, data = .))
 #' ## As a function call:
+#' library(broom)
 #' broomCall <- function(.) {tidy(., conf.int=T)}
 #' purrroom(mapDat, broomCall)
 #' ## Using piping:
